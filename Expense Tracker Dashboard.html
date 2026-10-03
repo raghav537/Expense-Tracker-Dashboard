@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Expense Tracker</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#eef2f1; --card:#ffffff; --ink:#14211f; --muted:#5b6b68; --line:#d9e1df;
+  --teal:#0f766e; --teal-soft:#d6ece9;
+  --amber:#b45f06; --amber-soft:#f8e6cf;
+  --red:#b3261e; --red-soft:#f6dad7;
+  --blue:#1d5fa8; --blue-soft:#d9e6f4;
+  --green:#2f7d32; --green-soft:#dcedd9;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1a18; --card:#16241f; --ink:#e6efed; --muted:#98aaa6; --line:#27373a;
+    --teal:#4fc3b7; --teal-soft:#1b3b38;
+    --amber:#e8a24a; --amber-soft:#3a2b14;
+    --red:#ef8a82; --red-soft:#3c1f1d;
+    --blue:#7ab4ee; --blue-soft:#1b2e44;
+    --green:#82c985; --green-soft:#1d3320;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1a18; --card:#16241f; --ink:#e6efed; --muted:#98aaa6; --line:#27373a;
+  --teal:#4fc3b7; --teal-soft:#1b3b38;
+  --amber:#e8a24a; --amber-soft:#3a2b14;
+  --red:#ef8a82; --red-soft:#3c1f1d;
+  --blue:#7ab4ee; --blue-soft:#1b2e44;
+  --green:#82c985; --green-soft:#1d3320;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.5}
+.app{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+aside{background:var(--card);border-right:1px solid var(--line);padding:24px 16px;display:flex;flex-direction:column;gap:24px}
+.brand{font-weight:700;font-size:18px;display:flex;align-items:center;gap:10px}
+.brand i{width:28px;height:28px;border-radius:8px;background:var(--teal);display:inline-block}
+nav{display:flex;flex-direction:column;gap:4px}
+nav a{padding:9px 12px;border-radius:8px;color:var(--muted);text-decoration:none;font-weight:500}
+nav a.on{background:var(--teal-soft);color:var(--teal);font-weight:600}
+nav a:hover{background:var(--bg)}
+nav a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+main{padding:28px;max-width:1200px;width:100%}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+h1{font-size:26px;margin:0;font-weight:700}
+.sub{color:var(--muted);margin:2px 0 0}
+.btn{background:var(--teal);color:var(--bg);border:0;border-radius:8px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer}
+:root[data-theme="dark"] .btn{color:#0f1a18}
+.grid{display:grid;gap:16px}
+.stats{grid-template-columns:repeat(4,1fr);margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+.card h2{font-size:15px;margin:0 0 14px;font-weight:600}
+.stat .label{color:var(--muted);font-size:13px}
+.stat .num{font-size:28px;font-weight:700;margin:4px 0;font-variant-numeric:tabular-nums}
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px}
+.up{background:var(--red-soft);color:var(--red)}
+.down{background:var(--green-soft);color:var(--green)}
+.row2{grid-template-columns:1.6fr 1fr;margin-bottom:16px}
+.bars{display:flex;align-items:flex-end;gap:14px;height:200px;padding-top:8px;border-bottom:1px solid var(--line)}
+.bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:6px}
+.bar span.v{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar div{width:100%;max-width:44px;background:var(--teal-soft);border-radius:6px 6px 0 0;border:1px solid var(--teal);border-bottom:0}
+.bar.cur div{background:var(--teal)}
+.months{display:flex;gap:14px;margin-top:8px}
+.months span{flex:1;text-align:center;font-size:12px;color:var(--muted)}
+.split{display:flex;height:14px;border-radius:7px;overflow:hidden;margin-bottom:16px;gap:2px}
+.split b{display:block;height:100%}
+.cat{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.cat:last-child{border-bottom:0}
+.dot{width:12px;height:12px;border-radius:3px}
+.amt{font-variant-numeric:tabular-nums;font-weight:600}
+.c1{background:var(--teal)}.c2{background:var(--blue)}.c3{background:var(--amber)}.c4{background:var(--red)}.c5{background:var(--green)}
+.row3{grid-template-columns:1.6fr 1fr}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:460px}
+th{text-align:left;font-size:13px;color:var(--muted);font-weight:500;padding:8px 6px;border-bottom:1px solid var(--line)}
+td{padding:11px 6px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+.tag{font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px}
+.t-food{background:var(--amber-soft);color:var(--amber)}
+.t-rent{background:var(--blue-soft);color:var(--blue)}
+.t-travel{background:var(--teal-soft);color:var(--teal)}
+.t-bills{background:var(--red-soft);color:var(--red)}
+.t-fun{background:var(--green-soft);color:var(--green)}
+.inc{color:var(--green);font-weight:600}
+.budget{margin-bottom:16px}
+.budget:last-child{margin-bottom:0}
+.budget .top{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px}
+.track{height:8px;background:var(--bg);border-radius:4px;border:1px solid var(--line);overflow:hidden}
+.fill{height:100%}
+.f-ok{background:var(--teal)}.f-warn{background:var(--amber)}.f-over{background:var(--red)}
+@media (max-width:980px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .row2,.row3{grid-template-columns:1fr}
+}
+@media (max-width:720px){
+  .app{grid-template-columns:1fr}
+  aside{flex-direction:row;align-items:center;justify-content:space-between;padding:12px 16px;border-right:0;border-bottom:1px solid var(--line);overflow-x:auto;gap:16px}
+  nav{flex-direction:row}
+  nav a{white-space:nowrap}
+  main{padding:18px 16px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand"><i></i>Ledgerly</div>
+    <nav aria-label="Main">
+      <a href="#" class="on">Dashboard</a>
+      <a href="#">Transactions</a>
+      <a href="#">Budgets</a>
+      <a href="#">Reports</a>
+      <a href="#">Settings</a>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="top">
+      <div>
+        <h1>October overview</h1>
+        <p class="sub">1 Oct – 3 Oct 2026 · tracked across 3 accounts</p>
+      </div>
+      <button class="btn" type="button">Add expense</button>
+    </header>
+
+    <section class="grid stats" aria-label="Summary">
+      <div class="card stat"><div class="label">Total spent</div><div class="num">₹42,380</div><span class="chip up">+8% vs September</span></div>
+      <div class="card stat"><div class="label">Income</div><div class="num">₹95,000</div><span class="chip down">On track</span></div>
+      <div class="card stat"><div class="label">Budget left</div><div class="num">₹17,620</div><span class="chip down">71% of ₹60,000 used</span></div>
+      <div class="card stat"><div class="label">Saved this month</div><div class="num">₹52,620</div><span class="chip down">55% of income</span></div>
+    </section>
+
+    <section class="grid row2">
+      <div class="card">
+        <h2>Spending, last 6 months</h2>
+        <div class="bars" role="img" aria-label="Monthly spending: May 38k, June 45k, July 41k, August 52k, September 39k, October 42k">
+          <div class="bar"><span class="v">38k</span><div style="height:57%"></div></div>
+          <div class="bar"><span class="v">45k</span><div style="height:68%"></div></div>
+          <div class="bar"><span class="v">41k</span><div style="height:62%"></div></div>
+          <div class="bar"><span class="v">52k</span><div style="height:79%"></div></div>
+          <div class="bar"><span class="v">39k</span><div style="height:59%"></div></div>
+          <div class="bar cur"><span class="v">42k</span><div style="height:64%"></div></div>
+        </div>
+        <div class="months"><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span></div>
+      </div>
+
+      <div class="card">
+        <h2>Where it went</h2>
+        <div class="split" role="img" aria-label="Rent 38%, Food 24%, Bills 17%, Travel 12%, Fun 9%">
+          <b class="c2" style="width:38%"></b><b class="c3" style="width:24%"></b><b class="c4" style="width:17%"></b><b class="c1" style="width:12%"></b><b class="c5" style="width:9%"></b>
+        </div>
+        <div class="cat"><i class="dot c2"></i><span>Rent</span><span class="amt">₹16,100</span></div>
+        <div class="cat"><i class="dot c3"></i><span>Food</span><span class="amt">₹10,170</span></div>
+        <div class="cat"><i class="dot c4"></i><span>Bills</span><span class="amt">₹7,200</span></div>
+        <div class="cat"><i class="dot c1"></i><span>Travel</span><span class="amt">₹5,090</span></div>
+        <div class="cat"><i class="dot c5"></i><span>Fun</span><span class="amt">₹3,820</span></div>
+      </div>
+    </section>
+
+    <section class="grid row3">
+      <div class="card">
+        <h2>Recent transactions</h2>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Date</th><th>Description</th><th>Category</th><th class="r">Amount</th></tr></thead>
+            <tbody>
+              <tr><td>3 Oct</td><td>Grocery market</td><td><span class="tag t-food">Food</span></td><td class="r">−₹1,240</td></tr>
+              <tr><td>2 Oct</td><td>Salary credit</td><td><span class="tag t-fun">Income</span></td><td class="r inc">+₹95,000</td></tr>
+              <tr><td>2 Oct</td><td>Electricity bill</td><td><span class="tag t-bills">Bills</span></td><td class="r">−₹2,150</td></tr>
+              <tr><td>1 Oct</td><td>Flat rent</td><td><span class="tag t-rent">Rent</span></td><td class="r">−₹16,100</td></tr>
+              <tr><td>1 Oct</td><td>Train tickets</td><td><span class="tag t-travel">Travel</span></td><td class="r">−₹1,860</td></tr>
+              <tr><td>1 Oct</td><td>Movie night</td><td><span class="tag t-fun">Fun</span></td><td class="r">−₹780</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Budget limits</h2>
+        <div class="budget"><div class="top"><span>Food</span><span class="amt">₹10,170 / ₹12,000</span></div><div class="track"><div class="fill f-warn" style="width:85%"></div></div></div>
+        <div class="budget"><div class="top"><span>Bills</span><span class="amt">₹7,200 / ₹6,500</span></div><div class="track"><div class="fill f-over" style="width:100%"></div></div></div>
+        <div class="budget"><div class="top"><span>Travel</span><span class="amt">₹5,090 / ₹10,000</span></div><div class="track"><div class="fill f-ok" style="width:51%"></div></div></div>
+        <div class="budget"><div class="top"><span>Fun</span><span class="amt">₹3,820 / ₹8,000</span></div><div class="track"><div class="fill f-ok" style="width:48%"></div></div></div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>
